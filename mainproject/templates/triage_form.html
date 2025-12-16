@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Patient Triage{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="m-0"><i class="fas fa-heartbeat"></i> Record Vitals</h5>
+            </div>
+            <div class="card-body">
+                <p>Patient: <strong>{{ appointment.patient.name }}</strong></p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Blood Pressure</label>
+                            {{ form.bp }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Temperature (°F)</label>
+                            {{ form.temperature }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Heart Rate (BPM)</label>
+                            {{ form.heart_rate }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Weight (kg)</label>
+                            {{ form.weight }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Complete Check-In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

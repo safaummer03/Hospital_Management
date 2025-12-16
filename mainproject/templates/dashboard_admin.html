@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card p-3 bg-primary text-white h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_patients }}</h3>
+                    <p class="mb-0">Total Patients</p>
+                </div>
+                <i class="fas fa-users fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 bg-success text-white h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">${{ revenue }}</h3>
+                    <p class="mb-0">Revenue</p>
+                </div>
+                <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 bg-info text-white h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_appointments }}</h3>
+                    <p class="mb-0">Appointments</p>
+                </div>
+                <i class="fas fa-calendar fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 bg-warning text-dark h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_doctors }}</h3>
+                    <p class="mb-0">Active Doctors</p>
+                </div>
+                <i class="fas fa-user-md fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Appointments</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in recent_appointments %}
+                            <tr>
+                                <td>{{ appointment.patient.user.get_full_name }}</td>
+                                <td>{{ appointment.doctor.user.get_full_name }}</td>
+                                <td>{{ appointment.appointment_date }}</td>
+                                <td><span class="badge bg-{{ appointment.status|lower }}">{{ appointment.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No recent appointments</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'register_patient' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Register Patient
+                    </a>
+                    <a href="{% url 'patient_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>View All Patients
+                    </a>
+                    <a href="{% url 'reports' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-chart-bar me-2"></i>Generate Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">System Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    All systems operational
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

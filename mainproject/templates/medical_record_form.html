@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Add Medical Record{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">Add Medical Record for {{ patient.user.get_full_name }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Patient ID:</strong> {{ patient.patient_id }} | 
+                    <strong>Age:</strong> {{ patient.user.date_of_birth|timesince }} | 
+                    <strong>Blood Group:</strong> {{ patient.blood_group }}
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.symptoms.label }}</label>
+                        {{ form.symptoms }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.diagnosis.label }}</label>
+                        {{ form.diagnosis }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.treatment_plan.label }}</label>
+                        {{ form.treatment_plan }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.lab_results.label }}</label>
+                        {{ form.lab_results }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.follow_up_date.label }}</label>
+                        {{ form.follow_up_date }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'patient_detail' patient.id %}" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">Save Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

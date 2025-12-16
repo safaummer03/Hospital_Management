@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Staff Dashboard{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 bg-success text-white h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ today_appointments.count }}</h3>
+                    <p class="mb-0">Today's Appointments</p>
+                </div>
+                <i class="fas fa-calendar-day fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 bg-info text-white h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ pending_registrations }}</h3>
+                    <p class="mb-0">New Registrations</p>
+                </div>
+                <i class="fas fa-user-plus fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 bg-warning text-dark h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_patients }}</h3>
+                    <p class="mb-0">Total Patients</p>
+                </div>
+                <i class="fas fa-users fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Today's Appointment Schedule</h5>
+            </div>
+            <div class="card-body">
+                {% if today_appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in today_appointments %}
+                            <tr>
+                                <td>{{ appointment.appointment_time }}</td>
+                                <td>{{ appointment.patient.user.get_full_name }}</td>
+                                <td>{{ appointment.doctor.user.get_full_name }}</td>
+                                <td>
+                                    <span class="badge bg-{% if appointment.status == 'COMPLETED' %}success{% elif appointment.status == 'IN_PROGRESS' %}warning{% else %}secondary{% endif %}">
+                                        {{ appointment.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'patient_detail' appointment.patient.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No appointments scheduled for today</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'register_patient' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Register New Patient
+                    </a>
+                    <a href="{% url 'book_appointment' %}" class="btn btn-success">
+                        <i class="fas fa-calendar-plus me-2"></i>Book Appointment
+                    </a>
+                    <a href="{% url 'patient_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>Patient Directory
+                    </a>
+                    <a href="{% url 'appointment_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-calendar me-2"></i>All Appointments
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Daily Tasks</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Process new registrations</span>
+                        <span class="badge bg-primary rounded-pill">{{ pending_registrations }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Confirm appointments</span>
+                        <span class="badge bg-warning rounded-pill">{{ today_appointments.count }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Update patient records</span>
+                        <span class="badge bg-info rounded-pill">Ongoing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

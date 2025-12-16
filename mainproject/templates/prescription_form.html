@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Add Prescription{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">Add Prescription</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Patient:</strong> {{ record.patient.user.get_full_name }}<br>
+                    <strong>Date:</strong> {{ record.created_at|date:"F d, Y" }}<br>
+                    <strong>Diagnosis:</strong> {{ record.diagnosis|truncatechars:100 }}
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.medication_name.label }}</label>
+                        {{ form.medication_name }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.dosage.label }}</label>
+                                {{ form.dosage }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.frequency.label }}</label>
+                                {{ form.frequency }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.duration.label }}</label>
+                        {{ form.duration }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.instructions.label }}</label>
+                        {{ form.instructions }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'patient_detail' record.patient.id %}" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">Add Prescription</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

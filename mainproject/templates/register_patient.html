@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}Register Patient{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">Patient Registration</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="mb-3 text-primary">Personal Information</h5>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ user_form.username.label }}</label>
+                                {{ user_form.username }}
+                                {% if user_form.username.errors %}
+                                <div class="text-danger small">{{ user_form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ user_form.email.label }}</label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}
+                                <div class="text-danger small">{{ user_form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ user_form.first_name.label }}</label>
+                                {{ user_form.first_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ user_form.last_name.label }}</label>
+                                {{ user_form.last_name }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ user_form.phone.label }}</label>
+                                {{ user_form.phone }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ user_form.date_of_birth.label }}</label>
+                                {{ user_form.date_of_birth }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ user_form.address.label }}</label>
+                        {{ user_form.address }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ user_form.password1.label }}</label>
+                                {{ user_form.password1 }}
+                                {% if user_form.password1.errors %}
+                                <div class="text-danger small">{{ user_form.password1.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ user_form.password2.label }}</label>
+                                {{ user_form.password2 }}
+                                {% if user_form.password2.errors %}
+                                <div class="text-danger small">{{ user_form.password2.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="mb-3 text-primary">Medical Information</h5>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">{{ patient_form.gender.label }}</label>
+                                {{ patient_form.gender }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">{{ patient_form.blood_group.label }}</label>
+                                {{ patient_form.blood_group }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">{{ patient_form.emergency_contact.label }}</label>
+                                {{ patient_form.emergency_contact }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ patient_form.insurance_number.label }}</label>
+                        {{ patient_form.insurance_number }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ patient_form.allergies.label }}</label>
+                        {{ patient_form.allergies }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ patient_form.medical_history.label }}</label>
+                        {{ patient_form.medical_history }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ patient_form.current_medications.label }}</label>
+                        {{ patient_form.current_medications }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'patient_list' %}" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">Register Patient</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

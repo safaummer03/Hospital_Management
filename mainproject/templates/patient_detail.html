@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- Patient Info -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <span class="h1 m-0 text-secondary">{{ patient.name.0 }}</span>
+                </div>
+                <h4>{{ patient.name }}</h4>
+                <p class="text-muted">{{ patient.age }} years • {{ patient.gender }}</p>
+                <hr>
+                <div class="text-start">
+                    <p><strong><i class="fas fa-phone me-2"></i> Contact:</strong> {{ patient.contact }}</p>
+                    <p><strong><i class="fas fa-allergies me-2"></i> Allergies:</strong> {{ patient.allergies|default:"None" }}</p>
+                    <p><strong><i class="fas fa-history me-2"></i> History:</strong> {{ patient.medical_history|default:"None" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Records -->
+    <div class="col-md-8">
+        {% if user.role == 'DOCTOR' %}
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="m-0">Add Consultation Note</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.diagnosis }}
+                            <div class="form-text">Diagnosis</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.prescription }}
+                            <div class="form-text">Prescription</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.notes }}
+                        <div class="form-text">Clinical Notes</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Record</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <h5 class="mb-3">Medical History</h5>
+        {% for record in records %}
+        <div class="card mb-3 border-start border-4 border-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title fw-bold text-primary">{{ record.diagnosis }}</h5>
+                    <small class="text-muted">{{ record.date }}</small>
+                </div>
+                <p class="card-text"><strong>Rx:</strong> {{ record.prescription }}</p>
+                <p class="card-text text-muted bg-light p-2 rounded">"{{ record.notes }}"</p>
+                <small class="text-muted">Dr. {{ record.doctor.last_name }}</small>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">No medical records found for this patient.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

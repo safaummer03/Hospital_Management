@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Patient Directory{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <h2>Patients</h2>
+    <form class="d-flex gap-2" method="get">
+        <input type="text" name="q" class="form-control" placeholder="Search name..." value="{{ request.GET.q }}">
+        <button class="btn btn-primary"><i class="fas fa-search"></i></button>
+    </form>
+</div>
+<div class="card">
+    <div class="list-group list-group-flush">
+        {% for patient in patients %}
+        <a href="{% url 'patient_detail' patient.id %}" class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-secondary" style="width: 40px; height: 40px;">
+                    {{ patient.name.0 }}
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">{{ patient.name }}</h6>
+                    <small class="text-muted">Age: {{ patient.age }} • {{ patient.gender }}</small>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right text-muted"></i>
+        </a>
+        {% empty %}
+        <div class="p-4 text-center text-muted">No patients found.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

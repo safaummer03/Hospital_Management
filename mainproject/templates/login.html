@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Imperial HMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(180deg, #E8F2FF 0%, #F5F9FF 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+        }
+        .role-selection {
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .logo-section {
+            margin-bottom: 30px;
+        }
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3A86FF, #2A6DE0);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+        .main-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0A2A5B;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 30px;
+        }
+        .role-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .role-card {
+            background: #FFFFFF;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 20px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .role-card:hover {
+            border-color: #3A86FF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(58, 134, 255, 0.2);
+        }
+        .role-card i {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .role-card.admin i { color: #64748B; }
+        .role-card.doctor i { color: #3B82F6; }
+        .role-card.staff i { color: #10B981; }
+        .role-card.patient i { color: #F59E0B; }
+        
+        .role-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        /* Login Form Styles */
+        .login-form {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .form-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .back-btn {
+            background: #F3F4F6;
+            border: none;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: background 0.3s ease;
+        }
+        .back-btn:hover {
+            background: #E5E7EB;
+        }
+        .form-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+        }
+        .login-form.admin .form-input:focus { border-color: #64748B; }
+        .login-form.doctor .form-input:focus { border-color: #3B82F6; }
+        .login-form.staff .form-input:focus { border-color: #10B981; }
+        .login-form.patient .form-input:focus { border-color: #F59E0B; }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .login-btn.admin { background: #64748B; }
+        .login-btn.doctor { background: #3B82F6; }
+        .login-btn.staff { background: #10B981; }
+        .login-btn.patient { background: #F59E0B; }
+        
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .forgot-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .forgot-link a {
+            color: #6B7280;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #E5E7EB;
+        }
+        .register-link a {
+            color: #3B82F6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .alert-danger {
+            background: #FEF2F2;
+            color: #DC2626;
+            border: 1px solid #FECACA;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Role Selection Screen -->
+        <div id="roleSelection" class="role-selection">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i class="fas fa-stethoscope" style="font-size: 24px; color: white;"></i>
+                </div>
+                <h1 class="main-title">Imperial HMS</h1>
+                <p class="subtitle">Select your role to continue</p>
+            </div>
+            
+            <div class="role-grid">
+                <div class="role-card admin" onclick="selectRole('ADMIN', 'Administrator')">
+                    <i class="fas fa-user-shield"></i>
+                    <div class="role-title">Admin</div>
+                </div>
+                <div class="role-card doctor" onclick="selectRole('DOCTOR', 'Doctor')">
+                    <i class="fas fa-stethoscope"></i>
+                    <div class="role-title">Doctor</div>
+                </div>
+                <div class="role-card staff" onclick="selectRole('STAFF', 'Staff')">
+                    <i class="fas fa-clipboard-list"></i>
+                    <div class="role-title">Staff</div>
+                </div>
+                <div class="role-card patient" onclick="selectRole('PATIENT', 'Patient')">
+                    <i class="fas fa-user"></i>
+                    <div class="role-title">Patient</div>
+                </div>
+            </div>
+            
+            <div class="register-link">
+                <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="login-form">
+            <div class="form-header">
+                <button type="button" class="back-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="form-title" id="formTitle">Login</h2>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" id="loginFormElement">
+                {% csrf_token %}
+                <input type="hidden" name="role" id="selectedRole" value="">
+                
+                <div class="form-group">
+                    <label class="form-label" for="username" id="usernameLabel">Username</label>
+                    <input type="text" class="form-input" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" class="form-input" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginButton">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+            </form>
+            
+            <div class="forgot-link">
+                <a href="#" onclick="alert('Contact administrator for password reset')">Forgot your password?</a>
+            </div>
+            
+            <div class="register-link">
+                <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedRoleValue = null;
+        
+        function selectRole(role, roleName) {
+            selectedRoleValue = role;
+            
+            // Hide role selection
+            document.getElementById('roleSelection').style.display = 'none';
+            
+            // Show login form
+            document.getElementById('loginForm').style.display = 'block';
+            
+            // Update form title
+            document.getElementById('formTitle').textContent = roleName + ' Login';
+            
+            // Set hidden role input
+            document.getElementById('selectedRole').value = role;
+            
+            // Update button styling based on role
+            const loginButton = document.getElementById('loginButton');
+            loginButton.className = 'login-btn ' + role.toLowerCase();
+            
+            // Update form styling based on role
+            const loginForm = document.getElementById('loginForm');
+            loginForm.className = 'login-form ' + role.toLowerCase();
+            
+            // Update field labels based on role
+            const usernameLabel = document.getElementById('usernameLabel');
+            if (role === 'ADMIN') {
+                usernameLabel.textContent = 'Admin Username';
+                document.getElementById('username').placeholder = 'Enter admin username';
+            } else if (role === 'DOCTOR') {
+                usernameLabel.textContent = 'Doctor Username';
+                document.getElementById('username').placeholder = 'Enter doctor username';
+            } else if (role === 'STAFF') {
+                usernameLabel.textContent = 'Staff Username';
+                document.getElementById('username').placeholder = 'Enter staff username';
+            } else if (role === 'PATIENT') {
+                usernameLabel.textContent = 'Patient Username';
+                document.getElementById('username').placeholder = 'Enter patient username';
+            }
+            
+            // Focus on username field
+            document.getElementById('username').focus();
+        }
+        
+        function goBack() {
+            // Hide login form
+            document.getElementById('loginForm').style.display = 'none';
+            
+            // Show role selection
+            document.getElementById('roleSelection').style.display = 'block';
+            
+            // Clear form and reset labels
+            document.getElementById('loginFormElement').reset();
+            document.getElementById('usernameLabel').textContent = 'Username';
+            document.getElementById('username').placeholder = '';
+            document.getElementById('loginForm').className = 'login-form';
+            selectedRoleValue = null;
+        }
+        
+        // Handle form submission
+        document.getElementById('loginFormElement').addEventListener('submit', function(e) {
+            if (!selectedRoleValue) {
+                e.preventDefault();
+                alert('Please select a role first');
+                return;
+            }
+        });
+        
+        // Check if there's a role parameter in URL (from home page)
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleParam = urlParams.get('role');
+        if (roleParam) {
+            const roleNames = {
+                'ADMIN': 'Administrator',
+                'DOCTOR': 'Doctor', 
+                'STAFF': 'Staff',
+                'PATIENT': 'Patient'
+            };
+            if (roleNames[roleParam]) {
+                selectRole(roleParam, roleNames[roleParam]);
+            }
+        }
+    </script>
+</body>
+</html>

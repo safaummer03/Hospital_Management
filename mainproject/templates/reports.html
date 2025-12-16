@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}Reports & Analytics{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Hospital Reports & Analytics</h4>
+    <button class="btn btn-outline-primary" onclick="window.print()">
+        <i class="fas fa-print me-2"></i>Print Report
+    </button>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card p-3 bg-primary text-white h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_patients }}</h3>
+                    <p class="mb-0">Total Patients</p>
+                </div>
+                <i class="fas fa-users fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 bg-success text-white h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_doctors }}</h3>
+                    <p class="mb-0">Active Doctors</p>
+                </div>
+                <i class="fas fa-user-md fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 bg-info text-white h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_appointments }}</h3>
+                    <p class="mb-0">Total Appointments</p>
+                </div>
+                <i class="fas fa-calendar fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 bg-warning text-dark h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ monthly_appointments }}</h3>
+                    <p class="mb-0">This Month</p>
+                </div>
+                <i class="fas fa-chart-line fa-2x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Department Statistics</h5>
+            </div>
+            <div class="card-body">
+                {% if department_stats %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Doctors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dept in department_stats %}
+                            <tr>
+                                <td>{{ dept.name }}</td>
+                                <td><span class="badge bg-primary">{{ dept.doctor_count }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No department data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Appointment Status</h5>
+            </div>
+            <div class="card-body">
+                {% if appointment_status_stats %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for status in appointment_status_stats %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{% if status.status == 'COMPLETED' %}success{% elif status.status == 'CONFIRMED' %}primary{% elif status.status == 'CANCELLED' %}danger{% else %}secondary{% endif %}">
+                                        {{ status.status }}
+                                    </span>
+                                </td>
+                                <td>{{ status.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No appointment data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Monthly Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-6">
+                        <h4 class="text-success">{{ recent_registrations }}</h4>
+                        <p class="text-muted mb-0">New Registrations (Last 30 days)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="text-info">{{ monthly_appointments }}</h4>
+                        <p class="text-muted mb-0">Monthly Appointments</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
