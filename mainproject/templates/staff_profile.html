@@ -1,0 +1,405 @@
+{% extends 'base_staff.html' %}
+{% load static %}
+
+{% block title %}My Profile | Imperial HMS{% endblock %}
+{% block page_title %}Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .edit-profile-btn {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: white;
+        font-weight: 600;
+        color: var(--text-main);
+        transition: 0.2s;
+    }
+
+    .edit-profile-btn:hover {
+        background: #f8fafc;
+    }
+
+    .profile-header-content {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .profile-avatar-wrapper {
+        position: relative;
+    }
+
+    .profile-avatar-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar-edit-icon {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: var(--primary);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid white;
+        font-size: 0.8rem;
+    }
+
+    .profile-name h2 {
+        font-weight: 800;
+        margin-bottom: 8px;
+        color: var(--text-main);
+    }
+
+    .profile-badges {
+        display: flex;
+        gap: 8px;
+    }
+
+    .badge-role {
+        background: #eff6ff;
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 0.7rem;
+        padding: 4px 12px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .badge-dept {
+        background: #f8fafc;
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .form-group-custom {
+        margin-bottom: 24px;
+    }
+
+    .form-group-custom label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 10px;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 12px 16px 12px 48px;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: var(--text-main);
+        transition: 0.2s;
+    }
+
+    .form-control-custom:focus {
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+
+    .security-section {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 30px;
+    }
+
+    .security-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+
+    .security-icon {
+        width: 40px;
+        height: 40px;
+        background: #fff7ed;
+        color: #f97316;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .password-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .password-info h6 {
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .password-info p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 0;
+    }
+
+    .btn-update-pwd {
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: white;
+        font-weight: 600;
+        color: var(--text-main);
+        transition: 0.2s;
+    }
+
+    .btn-update-pwd:hover {
+        background: #f1f5f9;
+    }
+
+    /* Modal for Edit Profile */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+        padding: 20px;
+    }
+
+    .modal-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .modal-footer {
+        border-top: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-card">
+    <button class="edit-profile-btn" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+        Edit Profile
+    </button>
+
+    <div class="profile-header-content">
+        <div class="profile-avatar-wrapper">
+            <img src="https://ui-avatars.com/api/?name={{ request.user.name|urlencode }}&background=2563eb&color=fff&bold=true&size=200"
+                class="profile-avatar-large" alt="Profile Picture">
+            <div class="avatar-edit-icon">
+                <i class="fas fa-camera"></i>
+            </div>
+        </div>
+        <div class="profile-name">
+            <h2>{{ request.user.name }}</h2>
+            <div class="profile-badges">
+                <span class="badge-role">Staff</span>
+                <span class="badge-dept">
+                    <i class="fas fa-building"></i> {{ staff_profile.department.name|default:"General" }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-section">
+            <h5 class="section-title">Account Information</h5>
+            <div class="form-group-custom">
+                <label>Full Name</label>
+                <div class="input-wrapper">
+                    <i class="far fa-user"></i>
+                    <input type="text" class="form-control-custom" value="{{ request.user.name }}" readonly>
+                </div>
+            </div>
+            <div class="form-group-custom">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                    <i class="far fa-envelope"></i>
+                    <input type="email" class="form-control-custom" value="{{ request.user.email }}" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h5 class="section-title">Personal Details</h5>
+            <div class="form-group-custom">
+                <label>Department</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-building"></i>
+                    <input type="text" class="form-control-custom"
+                        value="{{ staff_profile.department.name|default:'General' }}" readonly>
+                </div>
+            </div>
+            <div class="form-group-custom">
+                <label>Position</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user-tag"></i>
+                    <input type="text" class="form-control-custom"
+                        value="{{ staff_profile.position|default:'Staff Member' }}" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="security-section">
+    <div class="security-header">
+        <div class="security-icon">
+            <i class="fas fa-key"></i>
+        </div>
+        <h5 class="mb-0 fw-bold">Security Settings</h5>
+    </div>
+
+    <div class="password-card">
+        <div class="password-info">
+            <h6>Change Password</h6>
+            <p>Ensure your account is secure by using a strong password.</p>
+        </div>
+        <button class="btn-update-pwd" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+            Update Password
+        </button>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="update_profile" value="1">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Full Name</label>
+                        <input type="text" name="name" class="form-control" value="{{ request.user.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Email Address</label>
+                        <input type="email" name="email" class="form-control" value="{{ request.user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" value="{{ request.user.phone }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Department</label>
+                        <select name="department" class="form-select">
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if staff_profile.department.id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Position</label>
+                        <input type="text" name="position" class="form-control" value="{{ staff_profile.position }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Update Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="update_password" value="1">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Current Password</label>
+                        <input type="password" name="old_password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">New Password</label>
+                        <input type="password" name="new_password1" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Confirm New Password</label>
+                        <input type="password" name="new_password2" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

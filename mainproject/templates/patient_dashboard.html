@@ -1,37 +1,216 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Dashboard - Imperial HMS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">Imperial HMS - Patient Portal</a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">{{ user.name }}</span>
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends 'base_patient.html' %}
+{% load static %}
 
-    <div class="container py-5">
-        <h2>Patient Dashboard</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Profile Information</h5>
-                        <p><strong>Name:</strong> {{ user.name }}</p>
-                        <p><strong>Age:</strong> {{ patient_profile.age }}</p>
-                        <p><strong>Gender:</strong> {{ patient_profile.gender }}</p>
-                        <p><strong>Contact:</strong> {{ patient_profile.contact_number }}</p>
-                    </div>
-                </div>
+{% block title %}Dashboard | Imperial HMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #f8fafc;
+    }
+
+    /* Welcome Banner */
+    .welcome-banner {
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        border-radius: 16px;
+        padding: 3rem 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Heartbeat Wave Effect */
+    .welcome-banner::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 40%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='10' d='M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,165.3C672,160,768,96,864,96C960,96,1056,160,1152,160C1248,160,1344,96,1392,64L1440,32'/%3E%3Cpath fill='none' stroke='rgba(255,255,255,0.15)' stroke-width='15' d='M0,192L60,170.7C120,149,240,107,360,112C480,117,600,171,720,197.3C840,224,960,224,1080,202.7C1200,181,1320,139,1380,117.3L1440,96'/%3E%3C/svg%3E");
+        background-size: cover;
+        background-position: center;
+        opacity: 0.6;
+    }
+
+    .welcome-banner h1 {
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .welcome-banner p {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Common Card Styles */
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        height: 100%;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+    }
+
+    /* My Health Status */
+    .status-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background-color: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .status-label {
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .status-value {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.95rem;
+    }
+
+    .status-value.link {
+        color: #2563eb;
+        text-decoration: none;
+    }
+
+    .status-value.success {
+        color: #10b981;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+    <h1>Welcome back, {{ user.name }}</h1>
+    <p>Here is your daily overview and hospital statistics.</p>
+</div>
+
+<!-- Two Column Layout -->
+<div class="dashboard-grid">
+
+    <!-- Left Column: My Health Status -->
+    <div class="dashboard-card">
+        <h2 class="card-title">My Health Status</h2>
+
+        <div class="status-list">
+            <div class="status-item">
+                <span class="status-label">Last Visit</span>
+                <span class="status-value">
+                    {% if last_visit_date %}{{ last_visit_date|date:"M d, Y" }}{% else %}No visits yet{% endif %}
+                </span>
+            </div>
+
+            <div class="status-item">
+                <span class="status-label">Next Appointment</span>
+                {% if next_appointment %}
+                <a href="{% url 'appointment_list' %}" class="status-value link">
+                    {{ next_appointment.appointment_date|date:"M d, Y" }}
+                </a>
+                {% else %}
+                <a href="{% url 'book_appointment_view' %}" class="status-value link">None scheduled</a>
+                {% endif %}
+            </div>
+
+            <div class="status-item">
+                <span class="status-label">Prescriptions</span>
+                <span class="status-value success">Active ({{ active_prescriptions_count }})</span>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Right Column removed: Find the Right Doctor component has been removed -->
+
+</div>
+
+<!-- Additional Content (Metrics & Notifications) -->
+<!-- We keep this below the main grid as per general good practice, though not explicitly in screenshot which was cropped -->
+
+
+<!-- Medical Records Section -->
+<div class="dashboard-card mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="card-title mb-0"><i class="fas fa-file-medical me-2"></i>Medical Records</h3>
+    </div>
+
+    <div class="d-flex flex-column gap-3">
+        {% for record in medical_history %}
+        <div class="border rounded p-4 bg-light">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="fw-bold mb-0 text-dark">{{ record.diagnosis }}</h5>
+                <span class="text-muted small">{{ record.date|date:"Y-m-d" }}</span>
+            </div>
+
+            <div class="mb-3">
+                {% if record.treatment %}
+                <div class="text-secondary mb-1">
+                    <strong>Rx:</strong> {{ record.treatment }}
+                </div>
+                {% endif %}
+                {% for pres in record.prescription_set.all %}
+                <div class="text-secondary mb-1">
+                    <strong>Rx:</strong> {{ pres.medication_name }} {{ pres.dosage }} - {{ pres.frequency }} ({{
+                    pres.duration }})
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if record.symptoms %}
+            <p class="text-muted small fst-italic mb-0">"{{ record.symptoms }}"</p>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center py-4">
+            <p class="text-muted mb-0">No medical records found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Doctor finder script removed -->
+{% endblock %}

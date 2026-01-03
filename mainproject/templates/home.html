@@ -159,6 +159,28 @@
         <h1 class="main-title">IMPERIAL INTERNATIONAL HOSPITAL</h1>
         <p class="subtitle">Hospital Management System</p>
         
+        <div class="container mb-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <strong>
+                            {% if message.tags == 'success' %}
+                                <i class="fas fa-check-circle me-2"></i>Success!
+                            {% elif message.tags == 'error' %}
+                                <i class="fas fa-exclamation-circle me-2"></i>Error:
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle me-2"></i>Warning:
+                            {% else %}
+                                <i class="fas fa-info-circle me-2"></i>Info:
+                            {% endif %}
+                        </strong>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
         <div class="section-header">
             WHO ARE YOU LOGGING IN AS?
         </div>
@@ -191,7 +213,7 @@
         
         <div class="registration-box">
             <div class="reg-title">Need an account?</div>
-            <div class="reg-subtitle">Register to access the system as a patient, doctor, or staff member.</div>
+            <div class="reg-subtitle">Register to access the system as a patient.</div>
             <a href="{% url 'register' %}" class="reg-button btn btn-primary">Register Now →</a>
         </div>
         

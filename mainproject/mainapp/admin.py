@@ -1,8 +1,23 @@
 from django.contrib import admin
+from django import forms
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm
 from .models import *
 
+
+class AdminUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'name', 'role')
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email=email).exists():
+            raise forms.ValidationError('A user with that email already exists.')
+        return email
+
 class CustomUserAdmin(UserAdmin):
+    add_form = AdminUserCreationForm
     list_display = ('username', 'name', 'email', 'role', 'is_active_user', 'is_staff')
     list_filter = ('role', 'is_active_user', 'is_staff', 'is_superuser')
     search_fields = ('username', 'name', 'email')

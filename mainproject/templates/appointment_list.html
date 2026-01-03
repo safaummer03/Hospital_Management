@@ -1,93 +1,539 @@
-{% extends 'base.html' %}
-{% block title %}Appointments{% endblock %}
+{% extends base_template|default:'base.html' %}
+
+{% block title %}Appointments | Imperial HMS{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+
+{% block extra_css %}
+<style>
+    .appt-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+
+    .search-group {
+        display: flex;
+        gap: 12px;
+        flex: 1;
+        max-width: 400px;
+    }
+
+    .filter-btn {
+        background: white;
+        border: 1px solid #e2e8f0;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.2s;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .appt-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+        gap: 28px;
+    }
+
+    .appt-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        min-height: 220px;
+    }
+
+    .appt-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+        border-color: #cbd5e1;
+    }
+
+    .status-ribbon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: #e2e8f0;
+    }
+
+    .status-confirmed-ribbon {
+        background: #22c55e;
+    }
+
+    .status-completed-ribbon {
+        background: #94a3b8;
+    }
+
+    .appt-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-confirmed-text {
+        color: #15803d;
+    }
+
+    .status-completed-text {
+        color: #64748b;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .dot-confirmed {
+        background: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+
+    .dot-completed {
+        background: #94a3b8;
+    }
+
+    .appt-time-info {
+        text-align: right;
+        color: var(--text-main);
+    }
+
+    .date-row {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .time-row {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .patient-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .p-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--primary);
+    }
+
+    .p-name-main {
+        font-weight: 800;
+        font-size: 0.98rem;
+        color: var(--text-main);
+        margin-bottom: 2px;
+    }
+
+    .p-meta-sub {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .clinical-brief {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 10px 12px;
+    }
+
+    .brief-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        letter-spacing: 0.04em;
+    }
+
+    .brief-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .vitals-summary {
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .vitals-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .vital-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+        color: #1e293b;
+    }
+
+    .vital-item i {
+        color: #94a3b8;
+        font-size: 1rem;
+    }
+
+    .vital-item b {
+        font-weight: 700;
+    }
+
+    .btn-action-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-primary-soft {
+        flex: 1;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        transition: all 0.15s;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-primary-soft:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+    }
+
+    .btn-outline-soft {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: var(--text-main);
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        transition: 0.15s;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-outline-soft:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .btn-primary-wide {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        text-align: center;
+        display: block;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4>Appointments</h4>
-    {% if user.role == 'PATIENT' or user.role == 'STAFF' %}
-    <a href="{% url 'book_appointment' %}" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i>Book New Appointment
+<div class="appt-controls">
+    <form class="search-group" method="GET">
+        <div class="flex-grow-1 position-relative">
+            <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+            <input type="text" name="q" value="{{ query }}"
+                class="form-control border-0 bg-white rounded-pill ps-5 py-2 shadow-sm"
+                placeholder="Search patient name...">
+        </div>
+        <select name="status" class="form-select border-0 bg-white rounded-pill px-4 shadow-sm w-auto fw-bold"
+            onchange="this.form.submit()">
+            <option value="">All Status</option>
+            <option value="CONFIRMED" {% if status_filter == 'CONFIRMED' %}selected{% endif %}>Confirmed</option>
+            <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+            <option value="COMPLETED" {% if status_filter == 'COMPLETED' %}selected{% endif %}>Completed</option>
+        </select>
+        {% if query or status_filter %}
+        <a href="{% url 'appointment_list' %}" class="btn btn-light rounded-pill px-4 shadow-sm border-0">
+            <i class="fas fa-times me-1"></i> Clear
+        </a>
+        {% endif %}
+    </form>
+    {% if request.user.role == 'PATIENT' or request.user.role == 'STAFF' %}
+    <a href="{% url 'book_appointment_view' %}" id="open-new-appt"
+        class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+        <i class="fas fa-plus me-2"></i> New Appointment
     </a>
     {% endif %}
 </div>
 
-<div class="card">
-    <div class="card-body">
-        {% if appointments %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        {% if user.role != 'PATIENT' %}
-                        <th>Patient</th>
-                        {% endif %}
-                        {% if user.role != 'DOCTOR' %}
-                        <th>Doctor</th>
-                        {% endif %}
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Reason</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for appointment in appointments %}
-                    <tr>
-                        {% if user.role != 'PATIENT' %}
-                        <td>
-                            <div>
-                                <strong>{{ appointment.patient.user.get_full_name }}</strong>
-                                <br><small class="text-muted">{{ appointment.patient.patient_id }}</small>
-                            </div>
-                        </td>
-                        {% endif %}
-                        {% if user.role != 'DOCTOR' %}
-                        <td>
-                            <div>
-                                <strong>{{ appointment.doctor.user.get_full_name }}</strong>
-                                <br><small class="text-muted">{{ appointment.doctor.department.name }}</small>
-                            </div>
-                        </td>
-                        {% endif %}
-                        <td>{{ appointment.appointment_date|date:"M d, Y" }}</td>
-                        <td>{{ appointment.appointment_time|time:"g:i A" }}</td>
-                        <td>{{ appointment.reason|truncatechars:50 }}</td>
-                        <td>
-                            <span class="badge bg-{% if appointment.status == 'COMPLETED' %}success{% elif appointment.status == 'CONFIRMED' %}primary{% elif appointment.status == 'IN_PROGRESS' %}warning{% elif appointment.status == 'CANCELLED' %}danger{% else %}secondary{% endif %}">
-                                {{ appointment.get_status_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                {% if user.role != 'PATIENT' %}
-                                <a href="{% url 'patient_detail' appointment.patient.id %}" class="btn btn-outline-primary" title="View Patient">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                {% endif %}
-                                {% if user.role == 'DOCTOR' and appointment.status == 'CONFIRMED' %}
-                                <a href="{% url 'add_medical_record' appointment.patient.id %}" class="btn btn-outline-success" title="Add Record">
-                                    <i class="fas fa-plus"></i>
-                                </a>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="text-center py-5">
-            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
-            <h5 class="text-muted">No appointments found</h5>
-            {% if user.role == 'PATIENT' or user.role == 'STAFF' %}
-            <p class="text-muted">Book your first appointment to get started</p>
-            <a href="{% url 'book_appointment' %}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Book Appointment
-            </a>
-            {% endif %}
-        </div>
-        {% endif %}
+<!-- Modal for new appointment (staff & patients) -->
+<div id="new-appt-modal"
+    style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.45); align-items:center; justify-content:center; z-index:1200;">
+    <div
+        style="background:white; border-radius:12px; padding:18px; width:640px; max-width:96%; box-shadow:0 18px 40px rgba(2,6,23,0.18);">
+        <h5 class="mb-3">New Appointment</h5>
+        <form id="new-appt-form">
+            {% csrf_token %}
+            <div class="row g-2">
+                {% if patients %}
+                <div class="col-md-6">
+                    <label class="form-label">Patient</label>
+                    <select name="patient" class="form-select">
+                        {% for p in patients %}
+                        <option value="{{ p.id }}">{{ p.name }} (ID: #p{{ p.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div class="col-md-6">
+                    <label class="form-label">Doctor</label>
+                    <select name="doctor" class="form-select">
+                        {% for d in doctors %}
+                        <option value="{{ d.id }}">Dr. {{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="appointment_date" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Time</label>
+                    <input type="time" name="appointment_time" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Reason / Symptoms</label>
+                    <input type="text" name="reason" class="form-control" placeholder="e.g. chest pain, fever" required>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                <button type="button" id="new-appt-cancel" class="btn btn-light me-2">Cancel</button>
+                <button type="submit" id="new-appt-submit" class="btn btn-primary">Book Now</button>
+            </div>
+        </form>
     </div>
 </div>
+
+<div class="appt-grid">
+    {% for appt in appointments %}
+    <div class="appt-card">
+        <div
+            class="status-ribbon {% if appt.status == 'CONFIRMED' %}status-confirmed-ribbon{% elif appt.status == 'COMPLETED' %}status-completed-ribbon{% endif %}">
+        </div>
+
+        <div class="appt-header">
+            <div
+                class="status-badge {% if appt.status == 'CONFIRMED' %}status-confirmed-text{% elif appt.status == 'COMPLETED' %}status-completed-text{% endif %}">
+                <div
+                    class="dot {% if appt.status == 'CONFIRMED' %}dot-confirmed{% elif appt.status == 'COMPLETED' %}dot-completed{% endif %}">
+                </div>
+                {{ appt.status }}
+            </div>
+            <div class="appt-time-info">
+                <div class="date-row">
+                    <i class="far fa-calendar-alt"></i>
+                    {{ appt.appointment_date|date:"M d, Y" }}
+                </div>
+                <div class="time-row">
+                    <i class="far fa-clock"></i>
+                    {{ appt.appointment_time|time:"H:i" }}
+                </div>
+            </div>
+        </div>
+
+        <div class="patient-row">
+            {% if request.user.role == 'PATIENT' %}
+            <div class="p-avatar">{{ appt.doctor.name|truncatechars:1|upper }}</div>
+            <div class="p-info">
+                <div class="p-name-main">Dr. {{ appt.doctor.name }}</div>
+                <div class="p-meta-sub">{{ appt.doctor.doctorprofile.specialization|default:'General Physician' }} •
+                    Doctor</div>
+            </div>
+            {% else %}
+            <div class="p-avatar">{{ appt.patient.name|truncatechars:1|upper }}</div>
+            <div class="p-info">
+                <div class="p-name-main">{{ appt.patient.name }}</div>
+                <div class="p-meta-sub">ID: #P{{ appt.patient.id }} • Patient</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="clinical-brief">
+            <div class="brief-label">Chief Complaint</div>
+            <div class="brief-text">{{ appt.reason|default:"General Health Screening" }}</div>
+        </div>
+
+        {% with triage=appt.triagequeue_set.first %}
+        {% if triage %}
+        <div class="vitals-summary">
+            <div class="vitals-header mb-3">
+                <span class="badge bg-white text-success border border-success-subtle rounded-pill">
+                    <i class="fas fa-heartbeat me-1"></i> Triage Vitals
+                </span>
+            </div>
+            <div class="vitals-grid">
+                <div class="vital-item">
+                    <i class="fas fa-wave-square"></i> BP: <b>{{ triage.blood_pressure|default:"--" }}</b>
+                </div>
+                <div class="vital-item">
+                    <i class="fas fa-thermometer-half"></i> Temp: <b>{{ triage.temperature|default:"--" }}°F</b>
+                </div>
+                <div class="vital-item">
+                    <i class="fas fa-heart"></i> HR: <b>{{ triage.pulse_rate|default:"--" }} bpm</b>
+                </div>
+                <div class="vital-item">
+                    <i class="fas fa-weight"></i> Wt: <b>{{ triage.weight|default:"--" }} kg</b>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% if request.user.role == 'DOCTOR' %}
+        {% if appt.status != 'COMPLETED' and appt.doctor == request.user %}
+        <div style="margin-top:12px;">
+            <form action="{% url 'complete_appointment' appt.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn-primary-wide">
+                    <i class="fas fa-check-circle me-2"></i> Mark as Completed
+                </button>
+            </form>
+        </div>
+        {% elif appt.status == 'COMPLETED' %}
+        <div style="margin-top:12px;">
+            <button class="btn-primary-wide" disabled>
+                <i class="fas fa-check me-2"></i> Completed
+            </button>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="bg-light d-inline-block rounded-circle p-4 mb-4">
+            <i class="fas fa-calendar-times fa-3x text-muted opacity-20"></i>
+        </div>
+        <h4 class="fw-bold text-muted">No Scheduled Appointments</h4>
+        <p class="text-muted">New appointments will appear here once booked by patients or staff.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const openBtn = document.getElementById('open-new-appt');
+        const modal = document.getElementById('new-appt-modal');
+        const cancelBtn = document.getElementById('new-appt-cancel');
+        const form = document.getElementById('new-appt-form');
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function openModal() { if (modal) modal.style.display = 'flex'; }
+        function closeModal() { if (modal) modal.style.display = 'none'; }
+
+        if (openBtn) openBtn.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const data = new FormData(form);
+                const csrftoken = getCookie('csrftoken');
+                const btn = document.getElementById('new-appt-submit');
+                btn.disabled = true; btn.innerText = 'Booking...';
+
+                fetch('{% url "book_appointment_view" %}', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken, 'X-Requested-With': 'XMLHttpRequest' },
+                    body: data
+                }).then(r => r.json()).then(json => {
+                    if (json.success) {
+                        // reload to show new appointment
+                        window.location.reload();
+                    } else {
+                        alert(json.error || 'Could not book appointment');
+                        btn.disabled = false; btn.innerText = 'Book Now';
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    alert('An error occurred');
+                    btn.disabled = false; btn.innerText = 'Book Now';
+                });
+            });
+        }
+    })();
+</script>
+<style>
+    /* Modal small adjustments */
+    #new-appt-modal {
+        display: none;
+    }
+
+    #new-appt-modal .form-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #475569;
+    }
+</style>
 {% endblock %}

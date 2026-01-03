@@ -1,36 +1,367 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Dashboard - Imperial HMS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
-        <div class="container">
-            <a class="navbar-brand" href="#">Imperial HMS - Doctor</a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">Dr. {{ user.name }}</span>
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends 'base_doctor.html' %}
 
-    <div class="container py-5">
-        <h2>Doctor Dashboard</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Profile Information</h5>
-                        <p><strong>Name:</strong> {{ user.name }}</p>
-                        <p><strong>Department:</strong> {{ doctor_profile.department }}</p>
-                        <p><strong>Specialty:</strong> {{ doctor_profile.specialty }}</p>
-                    </div>
-                </div>
+{% block title %}Dashboard | Imperial HMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Appointment layout and cards — 1440px desktop centered container */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+    body { background: #F8FAFC; }
+
+    .appointments-wrap {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .appointments-inner {
+        width: 100%;
+        max-width: 1200px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 24px;
+        align-items: start;
+        box-sizing: border-box;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+
+    .appt-card {
+        background: #FFFFFF;
+        min-height: 240px;
+        border-radius: 12px;
+        padding: 14px 16px;
+        box-shadow: 0 6px 14px rgba(2,6,23,0.06);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 12px;
+        box-sizing: border-box;
+    }
+
+    .appt-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .status-badge { font-size:0.8rem; font-weight:700; text-transform:uppercase; display:flex; align-items:center; gap:10px; color:#475569 }
+    .status-dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+    .status-confirmed { color:#15803d }
+    .status-confirmed .status-dot { background:#22c55e; box-shadow:0 0 0 6px rgba(34,197,94,0.06); }
+    .status-completed { color:#64748b }
+    .status-completed .status-dot { background:#94a3b8; }
+
+    .appt-time-info { text-align:right; color:#0f172a; font-weight:600; font-size:0.88rem }
+    .appt-time-info .date { display:block; }
+    .appt-time-info .time { display:block; font-size:0.85rem; color:#64748b; margin-top:4px }
+
+    .patient-row { display:flex; align-items:center; gap:14px; }
+    .p-avatar { width:44px; height:44px; border-radius:10px; background:#F1F5F9; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.95rem; color:#2563eb }
+    .p-name-main { font-weight:800; font-size:0.98rem; color:#0f172a }
+    .p-sub { color:#64748b; font-size:0.82rem }
+
+    .clinical-brief { background:#F8FAFC; border-radius:10px; padding:10px 12px; }
+    .brief-label { font-size:0.68rem; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:6px }
+    .brief-text { font-size:0.9rem; color:#0f172a; font-weight:600 }
+
+    .vitals-summary { background:#F0FDF4; border:1px solid #DCFCE7; border-radius:10px; padding:10px; }
+    .vitals-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px }
+    .vital-item { display:flex; align-items:center; gap:8px; font-size:0.86rem; color:#064e3b }
+    .vital-key { color:#065f46; font-weight:700; }
+
+    .btn-primary-wide { background:#2563eb; color:white; border:none; padding:10px; border-radius:10px; font-weight:700; font-size:0.92rem; text-align:center; display:block; width:100%; }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+        .appointments-inner { grid-template-columns: 1fr; }
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 32px;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+    }
+
+    .hero-banner::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 300px;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300"><path d="M0 150 L200 150 L250 100 L300 200 L350 150 L1000 150" stroke="rgba(255,255,255,0.15)" stroke-width="20" fill="none" /></svg>') no-repeat center right;
+        background-size: contain;
+        opacity: 0.8;
+    }
+
+    .hero-banner h2 {
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 8px;
+        z-index: 1;
+        position: relative;
+    }
+
+    .hero-banner p {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+        z-index: 1;
+        position: relative;
+    }
+
+    /* Stat Cards */
+    .stats-row {
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1;
+    }
+
+    .stat-subtext {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 8px;
+        font-weight: 500;
+    }
+
+    .stat-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .icon-blue {
+        background: #eff6ff;
+        color: #3b82f6;
+    }
+
+    .icon-purple {
+        background: #f5f3ff;
+        color: #8b5cf6;
+    }
+
+    .icon-yellow {
+        background: #fffbeb;
+        color: #f59e0b;
+    }
+
+    /* Upcoming Appointments */
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 24px;
+    }
+
+    .appointment-list-card {
+        background: white;
+        border-radius: 20px;
+        padding: 8px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .appointment-item {
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #f8fafc;
+        transition: 0.2s;
+    }
+
+    .appointment-item:last-child {
+        border-bottom: none;
+    }
+
+    .appt-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .patient-initials {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #eff6ff;
+        color: #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .patient-meta .p-name {
+        display: block;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #0f172a;
+    }
+
+    .patient-meta .p-time {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .appt-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .status-pill {
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-confirmed {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-pending {
+        background: #fef9c3;
+        color: #a16207;
+    }
+
+    .reason-pill {
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-banner">
+    <h2>Welcome back, Dr. {{ request.user.name }}</h2>
+    <p>Here is your daily overview and hospital statistics.</p>
+</div>
+
+<div class="row g-4 stats-row">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-left">
+                <div class="stat-label">My Patients</div>
+                <div class="stat-value">{{ total_patients }}</div>
+            </div>
+            <div class="stat-icon-box icon-blue">
+                <i class="fas fa-user-friends"></i>
             </div>
         </div>
     </div>
-</body>
-</html>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-left">
+                <div class="stat-label">Today's Schedule</div>
+                <div class="stat-value">{{ today_appointments.count }}</div>
+                <div class="stat-subtext">Appointments today</div>
+            </div>
+            <div class="stat-icon-box icon-purple">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-left">
+                <div class="stat-label">Pending Requests</div>
+                <div class="stat-value">{{ pending_requests }}</div>
+                <div class="stat-subtext">Action required</div>
+            </div>
+            <div class="stat-icon-box icon-yellow">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="max-width:1200px; margin:0 auto; padding: 0 20px 60px;">
+    <div class="section-title">Upcoming Appointments</div>
+
+    <div class="appointment-list-card">
+        {% if today_appointments %}
+            {% for appt in today_appointments %}
+            <div class="appointment-item">
+                <div class="appt-info">
+                    <div class="patient-initials">{{ appt.patient.name|truncatechars:1|upper }}</div>
+                    <div class="patient-meta">
+                        <span class="p-name">{{ appt.patient.name }}</span>
+                        <span class="p-time">{{ appt.appointment_date|date:"Y-m-d" }} at {{ appt.appointment_time|time:"H:i" }}</span>
+                    </div>
+                </div>
+
+                <div class="appt-actions">
+                    <div>
+                        {% if appt.status == 'CONFIRMED' %}
+                            <span class="status-pill status-confirmed">Confirmed</span>
+                        {% elif appt.status == 'PENDING' %}
+                            <span class="status-pill status-pending">Pending</span>
+                        {% elif appt.status == 'COMPLETED' %}
+                            <span class="status-pill" style="background:#eef2ff;color:#5b21b6;">Completed</span>
+                        {% else %}
+                            <span class="status-pill" style="background:#f1f5f9;color:#64748b;">{{ appt.status }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="reason-pill">{{ appt.reason|default:"General" }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="appointment-item" style="justify-content:center;">
+                <div class="p-sub">No appointments scheduled for today.</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

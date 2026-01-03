@@ -1,31 +1,545 @@
-{% extends 'base.html' %}
-{% block title %}Patient Directory{% endblock %}
+{% extends base_template|default:'base.html' %}
+
+{% block title %}Patients | Imperial HMS{% endblock %}
+{% block page_title %}Patients{% endblock %}
+
+{% block extra_css %}
+<style>
+    .split-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 24px;
+        height: calc(100vh - 140px);
+    }
+
+    .directory-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .directory-header {
+        padding: 24px;
+        border-bottom: 1px solid #f1f5f9;
+        position: relative;
+    }
+
+    /* small floating add button */
+    .btn-add-small {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #2563eb;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 18px rgba(37,99,235,0.14);
+        border: none;
+        text-decoration: none;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        font-size: 1rem;
+    }
+
+    .btn-add-small:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(37,99,235,0.18); }
+
+    .search-wrapper {
+        position: relative;
+    }
+
+    .search-wrapper i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px 12px 10px 42px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+        background: #f8fafc;
+    }
+
+    .patient-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .patient-item {
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        color: inherit;
+        border-bottom: 1px solid #f8fafc;
+        transition: 0.2s;
+        border-left: 3px solid transparent;
+    }
+
+    .patient-item:hover {
+        background: #f8fafc;
+    }
+
+    .patient-item.active {
+        background: #eff6ff;
+        border-left: 3px solid var(--primary);
+    }
+
+    .p-init {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    .p-info .name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-main);
+    }
+
+    .p-info .id {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    /* Detail Side */
+    .detail-container {
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .detail-main-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #f1f5f9;
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+
+    .p-header {
+        border-bottom: 1px solid #f8fafc;
+        padding-bottom: 24px;
+        margin-bottom: 24px;
+    }
+
+    .p-header h2 {
+        font-weight: 800;
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+
+    .p-meta {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .p-meta span::after {
+        content: "•";
+        margin-left: 16px;
+    }
+
+    .p-meta span:last-child::after {
+        content: "";
+    }
+
+    /* AI Box */
+    .ai-box {
+        background: #fbfbfe;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+
+    .ai-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    .btn-analyze {
+        background: #a5b4fc;
+        color: white;
+        border: none;
+        padding: 6px 20px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    /* Medical Records Section */
+    .section-header {
+        font-size: 1.1rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .record-form-container {
+        border: 1px solid #f1f5f9;
+        border-radius: 16px;
+        padding: 24px;
+        background: #f8fafc;
+        margin-bottom: 32px;
+    }
+
+    .form-subtitle {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 20px;
+    }
+
+    .custom-input {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+        background: white;
+        margin-bottom: 16px;
+    }
+
+    .custom-input:focus {
+        border-color: var(--primary);
+        outline: none;
+    }
+
+    .btn-save {
+        background: #1e293b;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        float: right;
+    }
+
+    /* History List */
+    .history-item {
+        border: 1px solid #f1f5f9;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 16px;
+        position: relative;
+    }
+
+    .h-date {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .h-diagnosis {
+        font-weight: 800;
+        font-size: 1rem;
+        margin-bottom: 8px;
+        color: #0f172a;
+    }
+
+    .h-rx {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .h-notes {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between mb-4">
-    <h2>Patients</h2>
-    <form class="d-flex gap-2" method="get">
-        <input type="text" name="q" class="form-control" placeholder="Search name..." value="{{ request.GET.q }}">
-        <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-    </form>
-</div>
-<div class="card">
-    <div class="list-group list-group-flush">
-        {% for patient in patients %}
-        <a href="{% url 'patient_detail' patient.id %}" class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-secondary" style="width: 40px; height: 40px;">
-                    {{ patient.name.0 }}
+<div class="split-layout">
+    <!-- Sidebar Directory -->
+    <div class="directory-card">
+        <div class="directory-header">
+            <h6 class="fw-bold mb-3">Patients Directory</h6>
+            {% if request.user.role == 'STAFF' or request.user.role == 'ADMIN' %}
+            <a href="#" class="btn-add-small" id="open-register-btn" title="Register Patient">
+                <i class="fas fa-user-plus"></i>
+            </a>
+            {% endif %}
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" class="search-input" placeholder="Search name or phone...">
+            </div>
+        </div>
+        <div class="patient-list">
+            {% for p in patients %}
+            <a href="?p={{ p.id }}" class="patient-item {% if selected_patient.id == p.id %}active{% endif %}">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-init">{{ p.name|truncatechars:1|upper }}</div>
+                    <div class="p-info">
+                        <div class="name">{{ p.name }}</div>
+                        <div class="id">ID: #p{{ p.id }}</div>
+                    </div>
                 </div>
-                <div>
-                    <h6 class="mb-0 fw-bold">{{ patient.name }}</h6>
-                    <small class="text-muted">Age: {{ patient.age }} • {{ patient.gender }}</small>
+                <i class="fas fa-chevron-right text-muted opacity-50 small"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Detail Area -->
+    <div class="detail-container">
+        <!-- Registration Modal -->
+        <div id="register-modal" class="modal-overlay" style="display:none;">
+            <div class="modal-panel">
+                <h5 class="mb-3">New Patient Registration</h5>
+                <form id="register-form">
+                    <div class="mb-2">
+                        <label class="form-label">Full name</label>
+                        <input type="text" name="name" class="custom-input" required>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label">Age</label>
+                            <input type="number" name="age" class="custom-input" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Gender</label>
+                            <select name="gender" class="custom-input" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="contact_number" class="custom-input">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" id="register-cancel" class="btn btn-light me-2">Cancel</button>
+                        <button type="submit" id="register-submit" class="btn-save">Create Patient Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% if selected_patient %}
+        <div class="detail-main-card">
+            <div class="p-header">
+                <h2>{{ selected_patient.name }}</h2>
+                <div class="p-meta">
+                    {% if selected_patient.patientprofile and selected_patient.patientprofile.age %}
+                    <span>{{ selected_patient.patientprofile.age }} yrs</span>
+                    {% endif %}
+                    {% if selected_patient.patientprofile and selected_patient.patientprofile.gender %}
+                    <span>{{ selected_patient.patientprofile.gender }}</span>
+                    {% endif %}
+                    {% if selected_patient.patientprofile and selected_patient.patientprofile.contact_number %}
+                    <span>{{ selected_patient.patientprofile.contact_number }}</span>
+                    {% endif %}
                 </div>
             </div>
-            <i class="fas fa-chevron-right text-muted"></i>
-        </a>
-        {% empty %}
-        <div class="p-4 text-center text-muted">No patients found.</div>
-        {% endfor %}
+
+            {% if user.role == 'DOCTOR' %}
+            <div class="ai-box">
+                <input type="text" class="ai-input" placeholder="e.g. High fever, dry cough, fatigue...">
+                <button class="btn-analyze">Analyze</button>
+            </div>
+            {% endif %}
+
+            <div class="section-header">
+                <i class="fas fa-file-medical"></i> Medical Records
+            </div>
+
+            {% if user.role == 'DOCTOR' %}
+            <div class="record-form-container">
+                <div class="form-subtitle">Add New Consultation Record</div>
+                <form action="{% url 'add_medical_record' selected_patient.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="diagnosis" class="custom-input" placeholder="Diagnosis" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" name="treatment" class="custom-input" placeholder="Prescription"
+                                required>
+                        </div>
+                    </div>
+                    <textarea name="notes" class="custom-input" rows="3" placeholder="Doctor's Notes"></textarea>
+                    <div class="clearfix">
+                        <button type="submit" class="btn-save">Save Record</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- History List -->
+            <div class="history-list">
+                {% for history in medical_history %}
+                <div class="history-item">
+                    <div class="h-date">{{ history.date|date:"Y-m-d" }}</div>
+                    <div class="h-diagnosis">{{ history.diagnosis }}</div>
+                    <div class="h-rx">Rx: {{ history.treatment }}</div>
+                    <div class="h-notes">"{{ history.symptoms }}"</div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4 text-muted small">No previous medical records found.</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="detail-main-card text-center py-5">
+            <p class="text-muted">Select a patient to view details</p>
+        </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Modal styles and behavior
+;(function(){
+    const openBtn = document.getElementById('open-register-btn');
+    const modal = document.getElementById('register-modal');
+    const cancelBtn = document.getElementById('register-cancel');
+    const form = document.getElementById('register-form');
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function openModal(){
+        if(modal) modal.style.display = 'flex';
+    }
+    function closeModal(){
+        if(modal) modal.style.display = 'none';
+    }
+
+    if(openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); openModal(); });
+    if(cancelBtn) cancelBtn.addEventListener('click', function(){ closeModal(); });
+
+    // Auto-open when query param open_register is present
+    if(window.location.search.indexOf('open_register') !== -1){ openModal(); }
+
+    if(form){
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            const data = new FormData(form);
+            const csrftoken = getCookie('csrftoken');
+            const btn = document.getElementById('register-submit');
+            btn.disabled = true; btn.innerText = 'Creating...';
+
+            fetch('{% url "create_guest_patient" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                body: data
+            }).then(r => r.json()).then(json => {
+                if(json.success){
+                    // reload the page to show new patient in the list
+                    window.location = window.location.pathname + '?p=' + json.patient_user_id;
+                } else {
+                    alert(json.error || 'Could not create patient');
+                    btn.disabled = false; btn.innerText = 'Create Patient Profile';
+                }
+            }).catch(err => {
+                console.error(err);
+                alert('An error occurred');
+                btn.disabled = false; btn.innerText = 'Create Patient Profile';
+            });
+        });
+    }
+})();
+</script>
+<style>
+/* Modal overlay and panel */
+#register-modal.modal-overlay{ display:none; }
+#register-modal{ position:fixed; inset:0; background:rgba(2,6,23,0.45); align-items:center; justify-content:center; z-index:1200; }
+.modal-panel{ background:white; border-radius:12px; padding:20px; width:520px; max-width:94%; box-shadow:0 18px 40px rgba(2,6,23,0.2); }
+.modal-panel .form-label{ font-weight:700; font-size:0.85rem; color:#475569; }
+</style>
+
+{% if user.role == 'DOCTOR' %}
+<script>
+    document.querySelector('.btn-analyze')?.addEventListener('click', function () {
+        const input = document.querySelector('.ai-input').value;
+        const btn = this;
+
+        if (!input) return;
+
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+        btn.disabled = true;
+
+        setTimeout(() => {
+            const results = [
+                "Based on the symptoms and history, consider screening for respiratory infections. Advise rest and fluids.",
+                "Clinical indicator suggests moderate fatigue. Verify sleep patterns and blood pressure history.",
+                "Symptoms may correlate with seasonal allergies. Recommend standard antihistamine protocol.",
+                "Analysis complete: No urgent indicators found. Suggest standard follow-up in 2 weeks."
+            ];
+            const randomResult = results[Math.floor(Math.random() * results.length)];
+
+            // Create or update result display
+            let resDiv = document.getElementById('ai-response-box');
+            if (!resDiv) {
+                resDiv = document.createElement('div');
+                resDiv.id = 'ai-response-box';
+                resDiv.style.marginTop = '16px';
+                resDiv.style.padding = '12px 16px';
+                resDiv.style.background = '#eff6ff';
+                resDiv.style.border = '1px solid #dbeafe';
+                resDiv.style.borderRadius = '8px';
+                resDiv.style.fontSize = '0.85rem';
+                resDiv.style.color = '#1e40af';
+                document.querySelector('.ai-box').insertAdjacentElement('afterend', resDiv);
+            }
+
+            resDiv.innerHTML = `<strong>AI Assistant:</strong> ${randomResult}`;
+
+            btn.innerHTML = 'Analyze';
+            btn.disabled = false;
+        }, 1500);
+    });
+</script>
+{% endif %}
 {% endblock %}

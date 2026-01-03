@@ -17,6 +17,8 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     phone = models.CharField(max_length=15, blank=True)
     is_active_user = models.BooleanField(default=True)
+    email_verified = models.BooleanField(default=False)
+    first_login = models.BooleanField(default=True)
     
     def get_full_name(self):
         return self.name or self.username
@@ -127,6 +129,7 @@ class Prescription(models.Model):
 
 class TriageQueue(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'PATIENT'})
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, null=True, blank=True)
     blood_pressure = models.CharField(max_length=20, blank=True)
     temperature = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)

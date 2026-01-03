@@ -1,0 +1,391 @@
+{% extends 'base_doctor.html' %}
+
+{% block title %}Profile | Imperial HMS{% endblock %}
+{% block page_title %}Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-main-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #f1f5f9;
+        padding: 40px;
+        margin-bottom: 24px;
+    }
+
+    .profile-hero-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .hero-left {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+    }
+
+    .profile-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        font-weight: 800;
+        border: 4px solid #f8fafc;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        text-transform: uppercase;
+        user-select: none;
+    }
+
+    .hero-text h3 {
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #0f172a;
+    }
+
+    .hero-tags {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .role-badge {
+        background: #eff6ff;
+        color: #2563eb;
+        font-weight: 700;
+        font-size: 0.7rem;
+        padding: 4px 12px;
+        border-radius: 6px;
+        letter-spacing: 0.05em;
+    }
+
+    .dept-text {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-edit-header {
+        border: 1px solid #e2e8f0;
+        background: white;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1e293b;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-edit-header:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .section-title-alt {
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: #1e293b;
+    }
+
+    .field-group {
+        margin-bottom: 20px;
+    }
+
+    .field-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #94a3b8;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .field-value-box {
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 8px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .field-value-box i {
+        color: #94a3b8;
+        width: 16px;
+    }
+
+    .security-section-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #f1f5f9;
+        padding: 32px;
+    }
+
+    .security-header-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .sec-icon-box {
+        background: #fff7ed;
+        color: #f97316;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .sec-card-inner {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sec-info-text h6 {
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .sec-info-text p {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    .btn-update-action {
+        background: white;
+        border: 1px solid #e2e8f0;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1e293b;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-main-card shadow-sm">
+    <div class="profile-hero-row">
+        <div class="hero-left">
+            <div class="profile-circle">
+                {{request.user.name|slice:":1"}}
+            </div>
+            <div class="hero-text">
+                <h3>Dr. {{request.user.name}}</h3>
+                <div class="hero-tags">
+                    <span class="role-badge">DOCTOR</span>
+                    <span class="dept-text"><i class="fas fa-hospital-alt"></i>
+                        {{doctor_profile.department.name|default:"Clinic"}}</span>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn-edit-header" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit
+            Profile</button>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-col">
+            <h5 class="section-title-alt">Account Information</h5>
+            <div class="field-group">
+                <label class="field-label">Full Name</label>
+                <div class="field-value-box"><i class="fas fa-user-circle"></i> Dr. {{request.user.name}}</div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Email Address</label>
+                <div class="field-value-box"><i class="fas fa-envelope"></i> {{request.user.email}}</div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Phone Number</label>
+                <div class="field-value-box"><i class="fas fa-phone"></i> {{request.user.phone|default:"Not provided"}}
+                </div>
+            </div>
+        </div>
+
+        <div class="info-col">
+            <h5 class="section-title-alt">Professional Details</h5>
+            <div class="field-group">
+                <label class="field-label">Qualification</label>
+                <div class="field-value-box"><i class="fas fa-graduation-cap"></i>
+                    {{doctor_profile.qualification|default:"Not specified"}}</div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Experience</label>
+                <div class="field-value-box"><i class="fas fa-user-md"></i> {{doctor_profile.experience_years}} Years
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Consultation Fee</label>
+                <div class="field-value-box"><i class="fas fa-dollar-sign"></i> {{doctor_profile.consultation_fee}}
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Working Hours</label>
+                <div class="field-value-box"><i class="fas fa-clock"></i>
+                    {{doctor_profile.available_from|time:"H:i"}}-{{doctor_profile.available_to|time:"H:i"}}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 pb-0 shadow-none">
+                <h5 class="modal-title fw-bold" id="editProfileModalLabel">Edit Profile Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body py-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Full Name</label>
+                            <input type="text" name="name" value="{{request.user.name}}" class="form-control" required
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Email Address</label>
+                            <input type="email" name="email" value="{{request.user.email}}" class="form-control"
+                                required
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Phone Number</label>
+                            <input type="text" name="phone" value="{{request.user.phone|default:''}}"
+                                class="form-control"
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Specialty</label>
+                            <input type="text" name="specialty" value="{{doctor_profile.specialty}}"
+                                class="form-control" required
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Qualification</label>
+                            <input type="text" name="qualification" value="{{doctor_profile.qualification}}"
+                                class="form-control"
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Experience (Years)</label>
+                            <input type="number" name="experience_years" value="{{doctor_profile.experience_years}}"
+                                class="form-control"
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Fee</label>
+                            <input type="number" step="0.01" name="consultation_fee"
+                                value="{{doctor_profile.consultation_fee}}" class="form-control"
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">From</label>
+                            <input type="time" name="available_from"
+                                value="{{doctor_profile.available_from|time:'H:i'}}" class="form-control"
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">To</label>
+                            <input type="time" name="available_to" value="{{doctor_profile.available_to|time:'H:i'}}"
+                                class="form-control"
+                                style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal"
+                        style="border-radius:8px;">Cancel</button>
+                    <button type="submit" name="update_profile" class="btn btn-primary px-4 shadow"
+                        style="border-radius:8px;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="security-section-card shadow-sm">
+    <div class="security-header-row">
+        <div class="sec-icon-box"><i class="fas fa-key"></i></div>
+        <h5 class="m-0 fw-bold">Security Settings</h5>
+    </div>
+    <div class="sec-card-inner">
+        <div class="sec-info-text">
+            <h6>Change Password</h6>
+            <p>Ensure your account is secure by using a strong password.</p>
+        </div>
+        <button type="button" class="btn-update-action" data-bs-toggle="modal"
+            data-bs-target="#changePasswordModal">Update Password</button>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow border-0" style="border-radius: 16px;">
+            <div class="modal-header border-0 pb-0 shadow-none">
+                <h5 class="modal-title fw-bold" id="changePasswordModalLabel">Update Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body py-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Current Password</label>
+                        <input type="password" name="old_password" class="form-control" required
+                            style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">New Password</label>
+                        <input type="password" name="new_password1" class="form-control" required
+                            style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Confirm New Password</label>
+                        <input type="password" name="new_password2" class="form-control" required
+                            style="background: #f8fafc; border: 1px solid #f1f5f9; padding:12px; border-radius:8px;">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal"
+                        style="border-radius:8px;">Cancel</button>
+                    <button type="submit" name="update_password" class="btn btn-primary px-4 shadow"
+                        style="border-radius:8px;">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

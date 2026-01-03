@@ -109,10 +109,72 @@ class TriageForm(forms.ModelForm):
 
 class SearchForm(forms.Form):
     search = forms.CharField(
-        max_length=100, 
+        max_length=100,
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Search patients...'
         })
     )
+
+class AdminAddDoctorForm(forms.ModelForm):
+    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=True)
+    name = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = DoctorProfile
+        fields = ('department', 'specialty', 'qualification', 'experience_years', 'consultation_fee', 'available_from', 'available_to')
+        widgets = {
+            'department': forms.Select(attrs={'class': 'form-control'}),
+            'specialty': forms.TextInput(attrs={'class': 'form-control'}),
+            'qualification': forms.TextInput(attrs={'class': 'form-control'}),
+            'experience_years': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'consultation_fee': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'available_from': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'available_to': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+        }
+
+class AdminAddStaffForm(forms.ModelForm):
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    name = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = StaffProfile
+        fields = ('department', 'position')
+        widgets = {
+            'department': forms.Select(attrs={'class': 'form-control'}),
+            'position': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class AdminAddPatientForm(forms.ModelForm):
+    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=True)
+    name = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = PatientProfile
+        fields = ('age', 'gender', 'contact_number', 'blood_group', 'emergency_contact', 'address', 'allergies', 'medical_history', 'current_medications', 'insurance_number')
+        widgets = {
+            'age': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 120}),
+            'gender': forms.Select(attrs={'class': 'form-control'}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'blood_group': forms.Select(attrs={'class': 'form-control'}),
+            'emergency_contact': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'allergies': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'medical_history': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'current_medications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'insurance_number': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=True)
+    new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=True)
+    new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=True)
+
+class ChangeUsernameForm(forms.Form):
+    new_username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=True)

@@ -1,38 +1,184 @@
-{% extends 'base.html' %}
-{% block title %}Patient Triage{% endblock %}
+{% extends base_template|default:'base_staff.html' %}
+
+{% block title %}Record Vitals | Imperial HMS{% endblock %}
+{% block page_title %}Triage & Check-In{% endblock %}
+
+{% block extra_css %}
+<style>
+    .triage-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .triage-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .patient-summary {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .patient-info h4 {
+        font-weight: 800;
+        margin-bottom: 4px;
+        color: var(--text-main);
+    }
+
+    .patient-info p {
+        color: var(--text-muted);
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+
+    .form-label-custom {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .input-group-premium {
+        position: relative;
+        margin-bottom: 24px;
+    }
+
+    .input-group-premium i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        z-index: 10;
+    }
+
+    .form-control-premium {
+        width: 100%;
+        padding: 12px 16px 12px 48px;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        transition: 0.2s;
+    }
+
+    .form-control-premium:focus {
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+
+    .btn-complete {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        width: 100%;
+        margin-top: 20px;
+        transition: 0.2s;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-complete:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .priority-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 16px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-danger text-white">
-                <h5 class="m-0"><i class="fas fa-heartbeat"></i> Record Vitals</h5>
+<div class="triage-container">
+    <div class="triage-card">
+        <div class="patient-summary">
+            <div class="patient-info">
+                <h4>{{ patient.name }}</h4>
+                <p>Appointment Time: <strong>{{ appointment.appointment_time|time:"H:i" }}</strong></p>
             </div>
-            <div class="card-body">
-                <p>Patient: <strong>{{ appointment.patient.name }}</strong></p>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label>Blood Pressure</label>
-                            {{ form.bp }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label>Temperature (°F)</label>
-                            {{ form.temperature }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label>Heart Rate (BPM)</label>
-                            {{ form.heart_rate }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label>Weight (kg)</label>
-                            {{ form.weight }}
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">Complete Check-In</button>
-                </form>
+            <div class="text-end">
+                <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill fw-bold"
+                    style="font-size: 0.7rem;">READY FOR TRIAGE</span>
             </div>
         </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group-premium">
+                        <label class="form-label-custom">Blood Pressure (mmHg)</label>
+                        <i class="fas fa-heartbeat"></i>
+                        <input type="text" name="bp" class="form-control-premium" placeholder="e.g. 120/80" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group-premium">
+                        <label class="form-label-custom">Temperature (°F)</label>
+                        <i class="fas fa-thermometer-half"></i>
+                        <input type="number" step="0.1" name="temperature" class="form-control-premium"
+                            placeholder="e.g. 98.6" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group-premium">
+                        <label class="form-label-custom">Pulse Rate (BPM)</label>
+                        <i class="fas fa-pulse"></i>
+                        <input type="number" name="pulse_rate" class="form-control-premium" placeholder="e.g. 72"
+                            required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group-premium">
+                        <label class="form-label-custom">Weight (kg)</label>
+                        <i class="fas fa-weight"></i>
+                        <input type="number" step="0.1" name="weight" class="form-control-premium" placeholder="e.g. 70"
+                            required>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="input-group-premium">
+                        <label class="form-label-custom">Priority Level</label>
+                        <i class="fas fa-exclamation-circle"></i>
+                        <select name="priority" class="form-control-premium priority-select">
+                            <option value="LOW">Low - Routine check-up</option>
+                            <option value="MEDIUM" selected>Medium - Standard care</option>
+                            <option value="HIGH">High - Urgent attention</option>
+                            <option value="URGENT">Urgent - Emergency</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-complete">
+                <i class="fas fa-check-circle me-2"></i> Complete Triage & Check-In
+            </button>
+        </form>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'staff_dashboard' %}" class="text-muted text-decoration-none small">
+            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
     </div>
 </div>
 {% endblock %}

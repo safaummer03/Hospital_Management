@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Change Username - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Change Username</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.new_username.id_for_label }}">New Username</label>
+                            {{ form.new_username }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.password.id_for_label }}">Current Password</label>
+                            {{ form.password }}
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Change Username</button>
+                            <a href="{% url request.user.role|lower|add:'_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

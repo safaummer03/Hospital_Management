@@ -1,36 +1,365 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard - Imperial HMS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-info">
-        <div class="container">
-            <a class="navbar-brand" href="#">Imperial HMS - Staff</a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">{{ user.name }}</span>
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </div>
-        </div>
-    </nav>
+{% extends 'base_staff.html' %}
+{% load static %}
 
-    <div class="container py-5">
-        <h2>Staff Dashboard</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Profile Information</h5>
-                        <p><strong>Name:</strong> {{ user.name }}</p>
-                        <p><strong>Department:</strong> {{ staff_profile.department }}</p>
-                        <p><strong>Role:</strong> Staff Member</p>
-                    </div>
-                </div>
+{% block title %}Dashboard | Imperial HMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-banner {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .banner-content h2 {
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+
+    .banner-content p {
+        color: var(--text-muted);
+        margin-bottom: 0;
+    }
+
+    .banner-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-register {
+        background: #1e293b;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+    }
+
+    .btn-register:hover {
+        background: #0f172a;
+        color: white;
+    }
+
+    .btn-book {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-book:hover {
+        background: var(--primary-dark);
+        color: white;
+    }
+
+    .stat-card {
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        height: 100%;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .stat-info {
+        flex: 1;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1;
+    }
+
+    .bg-blue-light {
+        background: #eff6ff;
+        border-color: #dbeafe;
+    }
+
+    .icon-blue {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .bg-green-light {
+        background: #f0fdf4;
+        border-color: #dcfce7;
+    }
+
+    .icon-green {
+        background: #22c55e;
+        color: white;
+    }
+
+    .bg-purple-light {
+        background: #faf5ff;
+        border-color: #f3e8ff;
+    }
+
+    .icon-purple {
+        background: #a855f7;
+        color: white;
+    }
+
+    .bg-orange-light {
+        background: #fff7ed;
+        border-color: #ffedd5;
+    }
+
+    .icon-orange {
+        background: #f97316;
+        color: white;
+    }
+
+    .table-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 24px;
+        margin-top: 30px;
+    }
+
+    .card-title {
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .card-title i {
+        color: var(--text-muted);
+    }
+
+    .table thead th {
+        background: #f8fafc;
+        border-bottom: none;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 16px;
+    }
+
+    .table tbody td {
+        padding: 16px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+    }
+
+    .badge-status {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
+    }
+
+    .status-confirmed {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-pending {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .btn-triage {
+        color: #22c55e;
+        background: transparent;
+        border: 1.5px solid #22c55e;
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-triage:hover {
+        background: #22c55e;
+        color: white;
+    }
+
+    .vitals-recorded {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-banner">
+    <div class="banner-content">
+        <h2>Welcome back, {{ request.user.name }}</h2>
+        <p>
+            {% if staff_profile %}
+            {{ staff_profile.department.name }} • {{ staff_profile.position|default:"Staff Member" }}
+            {% else %}
+            Front Desk
+            {% endif %}
+        </p>
+    </div>
+    <div class="banner-actions">
+        {% if request.user.role == 'PATIENT' %}
+        <a href="{% url 'book_appointment_view' %}" class="btn-book">
+            <i class="fas fa-clipboard-list"></i> Book Appointment
+        </a>
+        {% elif request.user.role == 'STAFF' or request.user.role == 'ADMIN' %}
+        <a href="{% url 'patient_list' %}?open_register=1" class="btn-register">
+            <i class="fas fa-user-plus"></i> Register Patient
+        </a>
+        <a href="{% url 'book_appointment_view' %}" class="btn-book">
+            <i class="fas fa-calendar-plus"></i> Book Appointment
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="stat-card bg-blue-light">
+            <div class="stat-icon icon-blue">
+                <i class="far fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Appointments Today</div>
+                <div class="stat-value">{{ appointments_today_count }}</div>
             </div>
         </div>
     </div>
-</body>
-</html>
+    <div class="col-md-3">
+        <div class="stat-card bg-green-light">
+            <div class="stat-icon icon-green">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Patients Waiting</div>
+                <div class="stat-value">{{ patients_waiting_count }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-purple-light">
+            <div class="stat-icon icon-purple">
+                <i class="fas fa-stethoscope"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Doctors on Duty</div>
+                <div class="stat-value">{{ doctors_on_duty_count }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-orange-light">
+            <div class="stat-icon icon-orange">
+                <i class="fas fa-wave-square"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Pending Requests</div>
+                <div class="stat-value">{{ pending_requests_count }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
+    <h5 class="card-title">
+        <i class="far fa-calendar"></i>
+        Today's Triage & Schedule ({{ current_date }})
+    </h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in today_appointments %}
+                <tr>
+                    <td class="fw-bold">{{ appointment.appointment_time|time:"H:i" }}</td>
+                    <td>{{ appointment.patient.get_full_name }}</td>
+                    <td>Dr. {{ appointment.doctor.get_full_name }}</td>
+                    <td>
+                        <span
+                            class="badge-status status-{% if appointment.status == 'CONFIRMED' %}confirmed{% elif appointment.status == 'PENDING' %}pending{% else %}secondary{% endif %}">
+                            {{ appointment.status }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if appointment.triagequeue_set.all|length %}
+                        <div class="vitals-recorded">
+                            <i class="far fa-check-circle"></i> Vitals Recorded
+                        </div>
+                        {% else %}
+                        <a href="{% url 'triage_form_patient' appointment.patient.id %}" class="btn-triage">
+                            <i class="fas fa-wave-square"></i> Triage & Check In
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        No appointments scheduled for today
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
@@ -15,7 +17,7 @@
             </a>
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{% url 'home' %}">Home</a>
-                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                <a class="nav-link" href="{% url 'home' %}">Login</a>
             </div>
         </div>
     </nav>
@@ -28,36 +30,45 @@
                         <h4 class="mb-0">Create Account</h4>
                     </div>
                     <div class="card-body">
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+
                         <form method="post">
                             {% csrf_token %}
-                            
+
                             <div class="mb-3">
                                 <label class="form-label">Select Role</label>
                                 <select id="role" name="role" class="form-select" required>
                                     <option value="">Choose your role...</option>
                                     <option value="PATIENT">Patient</option>
-                                    <option value="DOCTOR">Doctor</option>
-                                    <option value="STAFF">Staff</option>
-                                    <option value="ADMIN">Administrator</option>
+                                    <!-- <option value="DOCTOR">Doctor</option> -->
+                                    <!-- <option value="STAFF">Staff</option> -->
+                                    <!-- <option value="ADMIN">Administrator</option> -->
                                 </select>
                             </div>
-                            
+
                             <!-- Common Fields -->
                             <div class="mb-3">
                                 <label class="form-label">Username</label>
                                 <input type="text" name="username" class="form-control" required>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label">Full Name</label>
                                 <input type="text" name="name" class="form-control" required>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
                                 <input type="email" name="email" class="form-control" required>
                             </div>
-                            
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -72,7 +83,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Patient Fields -->
                             <div id="patient-fields" class="role-fields" style="display: none;">
                                 <hr>
@@ -100,7 +111,7 @@
                                     <input type="tel" name="contact_number" class="form-control">
                                 </div>
                             </div>
-                            
+
                             <!-- Doctor Fields -->
                             <div id="doctor-fields" class="role-fields" style="display: none;">
                                 <hr>
@@ -120,12 +131,13 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">Specialty</label>
-                                            <input type="text" name="specialty" class="form-control" placeholder="e.g., Pediatrics">
+                                            <input type="text" name="specialty" class="form-control"
+                                                placeholder="e.g., Pediatrics">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Staff Fields -->
                             <div id="staff-fields" class="role-fields" style="display: none;">
                                 <hr>
@@ -141,18 +153,19 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Position</label>
-                                    <input type="text" name="position" class="form-control" placeholder="e.g., Nurse, Receptionist">
+                                    <input type="text" name="position" class="form-control"
+                                        placeholder="e.g., Nurse, Receptionist">
                                 </div>
                             </div>
-                            
+
                             <div class="d-flex justify-content-between mt-4">
                                 <a href="{% url 'home' %}" class="btn btn-light">Back to Home</a>
                                 <button type="submit" class="btn btn-primary px-4">Register</button>
                             </div>
                         </form>
-                        
+
                         <div class="text-center mt-3">
-                            <p class="mb-0">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                            <p class="mb-0">Already have an account? <a href="{% url 'home' %}">Login here</a></p>
                         </div>
                     </div>
                 </div>
@@ -161,11 +174,11 @@
     </div>
 
     <script>
-        document.getElementById('role').addEventListener('change', function() {
+        document.getElementById('role').addEventListener('change', function () {
             // Hide all role-specific fields
             const roleFields = document.querySelectorAll('.role-fields');
             roleFields.forEach(field => field.style.display = 'none');
-            
+
             // Show fields based on selected role
             const selectedRole = this.value;
             if (selectedRole === 'PATIENT') {
@@ -179,4 +192,5 @@
         });
     </script>
 </body>
+
 </html>

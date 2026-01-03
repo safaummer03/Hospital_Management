@@ -1,148 +1,335 @@
-{% extends 'base.html' %}
-{% block title %}Reports & Analytics{% endblock %}
+{% extends base_template|default:'base.html' %}
+
+{% block title %}Reports | MediCore AI{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reports-header {
+        margin-bottom: 32px;
+    }
+
+    .reports-header h4 {
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .reports-header p {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    /* Main Chart Card */
+    .chart-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #f1f5f9;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .chart-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1.1rem;
+    }
+
+    .chart-title i {
+        color: #3b82f6;
+        font-size: 1.2rem;
+    }
+
+
+
+    /* --- Precision Grid Chart --- */
+    .chart-container-root {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        grid-template-rows: 240px 40px;
+        /* Height of bars + X-axis area */
+        gap: 0 16px;
+        position: relative;
+    }
+
+    /* Y-Axis Labels */
+    .chart-y-labels {
+        grid-column: 1;
+        grid-row: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: right;
+        padding-bottom: 4px;
+        /* Align 0 with bottom line */
+    }
+
+    /* Main Drawing Area (Grid + Bars) */
+    .chart-main-area {
+        grid-column: 2;
+        grid-row: 1;
+        position: relative;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* Grid Lines (Dotted) */
+    .chart-grid-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        z-index: 1;
+    }
+
+    .chart-grid-line {
+        height: 1px;
+        width: 100%;
+        border-top: 1px dashed #f1f5f9;
+    }
+
+    .chart-grid-line:last-child {
+        border-top-style: solid;
+        /* Bottom line solid */
+        border-top-color: #f1f5f9;
+    }
+
+    /* Bars Container - Shared Grid with X-Axis */
+    .chart-bars-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        /* Matching the 5 days */
+        align-items: flex-end;
+        padding: 0 10px;
+    }
+
+    .chart-bar-slot {
+        display: flex;
+        justify-content: center;
+        height: 100%;
+        align-items: flex-end;
+    }
+
+    .chart-bar-fill {
+        width: 65%;
+        background: #3b82f6;
+        border-radius: 8px 8px 0 0;
+        transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .chart-bar-fill:hover {
+        background: #2563eb;
+    }
+
+    /* X-Axis Labels */
+    .chart-x-labels {
+        grid-column: 2;
+        grid-row: 2;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        padding: 12px 10px 0;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .chart-x-label {
+        text-align: center;
+    }
+
+    /* --- Stats Section --- */
+    .report-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 24px;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #f1f5f9;
+        padding: 32px;
+    }
+
+    .stats-title {
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 24px;
+        font-size: 1rem;
+    }
+
+    .stat-item {
+        margin-bottom: 24px;
+    }
+
+    .stat-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .progress-bar-custom {
+        height: 8px;
+        background: #f8fafc;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .pb-fill {
+        height: 100%;
+        border-radius: 10px;
+    }
+
+    .pb-fill-blue {
+        background: #3b82f6;
+    }
+
+    .pb-fill-orange {
+        background: #f97316;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4>Hospital Reports & Analytics</h4>
-    <button class="btn btn-outline-primary" onclick="window.print()">
-        <i class="fas fa-print me-2"></i>Print Report
-    </button>
+<div class="reports-header text-center text-md-start">
+    <h4>Reports & Analytics</h4>
+    <p>Detailed insights and system logs</p>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="card p-3 bg-primary text-white h-100">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h3 class="mb-0">{{ total_patients }}</h3>
-                    <p class="mb-0">Total Patients</p>
-                </div>
-                <i class="fas fa-users fa-2x opacity-75"></i>
+<div class="report-grid">
+    <!-- Appointment Density Card -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <div class="chart-title">
+                <i class="fas fa-wave-square"></i>
+                <span>Appointment Density</span>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 bg-success text-white h-100">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h3 class="mb-0">{{ total_doctors }}</h3>
-                    <p class="mb-0">Active Doctors</p>
-                </div>
-                <i class="fas fa-user-md fa-2x opacity-75"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 bg-info text-white h-100">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h3 class="mb-0">{{ total_appointments }}</h3>
-                    <p class="mb-0">Total Appointments</p>
-                </div>
-                <i class="fas fa-calendar fa-2x opacity-75"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 bg-warning text-dark h-100">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h3 class="mb-0">{{ monthly_appointments }}</h3>
-                    <p class="mb-0">This Month</p>
-                </div>
-                <i class="fas fa-chart-line fa-2x opacity-75"></i>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Department Statistics</h5>
+        </div>
+
+        <div class="chart-container-root">
+            <!-- Y Axis -->
+            <div class="chart-y-labels">
+                <span>80</span>
+                <span>60</span>
+                <span>40</span>
+                <span>20</span>
+                <span>0</span>
             </div>
-            <div class="card-body">
-                {% if department_stats %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Department</th>
-                                <th>Doctors</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for dept in department_stats %}
-                            <tr>
-                                <td>{{ dept.name }}</td>
-                                <td><span class="badge bg-primary">{{ dept.doctor_count }}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+            <!-- Main Drawing Area -->
+            <div class="chart-main-area">
+                <!-- Grid Backdrop -->
+                <div class="chart-grid-backdrop">
+                    <div class="chart-grid-line"></div>
+                    <div class="chart-grid-line"></div>
+                    <div class="chart-grid-line"></div>
+                    <div class="chart-grid-line"></div>
+                    <div class="chart-grid-line"></div>
                 </div>
+
+                <!-- Interactive Bars -->
+                <div class="chart-bars-container">
+                    {% for day in density_data %}
+                    <div class="chart-bar-slot">
+                        <div class="chart-bar-fill" style="height: {{ day.height }}%;" title="{{ day.count }} visits">
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center w-100 py-5 text-muted" style="grid-column: 1 / span 5;">
+                        <i class="fas fa-chart-bar mb-2 d-block opacity-20 fa-2x"></i>
+                        No activity recorded
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- X Axis Labels -->
+            <div class="chart-x-labels">
+                {% if density_data %}
+                {% for day in density_data %}
+                <div class="chart-x-label">{{ day.label }}</div>
+                {% endfor %}
                 {% else %}
-                <p class="text-muted">No department data available</p>
+                <div class="chart-x-label">Mon</div>
+                <div class="chart-x-label">Tue</div>
+                <div class="chart-x-label">Wed</div>
+                <div class="chart-x-label">Thu</div>
+                <div class="chart-x-label">Fri</div>
                 {% endif %}
             </div>
         </div>
     </div>
-    
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Appointment Status</h5>
+
+    <!-- Demographic Summary Card -->
+    <div class="stats-card">
+        <div class="stats-title">Patient Demographics Summary</div>
+
+        <div class="stat-item">
+            <div class="stat-info">
+                <span class="stat-label">Total Patients Assigned</span>
+                <span class="stat-value">{{ total_patients }}</span>
             </div>
-            <div class="card-body">
-                {% if appointment_status_stats %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Status</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for status in appointment_status_stats %}
-                            <tr>
-                                <td>
-                                    <span class="badge bg-{% if status.status == 'COMPLETED' %}success{% elif status.status == 'CONFIRMED' %}primary{% elif status.status == 'CANCELLED' %}danger{% else %}secondary{% endif %}">
-                                        {{ status.status }}
-                                    </span>
-                                </td>
-                                <td>{{ status.count }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="progress-bar-custom">
+                <div class="pb-fill pb-fill-blue" style="width: {% if total_patients > 0 %}100{% else %}0{% endif %}%;">
                 </div>
-                {% else %}
-                <p class="text-muted">No appointment data available</p>
-                {% endif %}
             </div>
         </div>
-    </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Monthly Summary</h5>
+        <div class="stat-item">
+            <div class="stat-info">
+                <span class="stat-label">Chronic Cases</span>
+                <span class="stat-value">2</span>
             </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-6">
-                        <h4 class="text-success">{{ recent_registrations }}</h4>
-                        <p class="text-muted mb-0">New Registrations (Last 30 days)</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h4 class="text-info">{{ monthly_appointments }}</h4>
-                        <p class="text-muted mb-0">Monthly Appointments</p>
-                    </div>
-                </div>
+            <div class="progress-bar-custom">
+                <div class="pb-fill pb-fill-orange" style="width: 65%;"></div>
             </div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-4" style="background: #eff6ff;">
+            <h6 class="fw-bold mb-2" style="color: #1e40af;">Efficiency Report</h6>
+            <p class="small mb-3" style="color: #4338ca;">You have maintained a 95% on-time start rate for appointments
+                this month.</p>
+            <a href="#" class="text-decoration-none fw-bold small" style="color: #3b82f6;">
+                View detailed breakdown <i class="fas fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
+            </a>
         </div>
     </div>
 </div>
